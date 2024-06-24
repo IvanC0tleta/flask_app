@@ -1,0 +1,63 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}
+Добавить категорию товаров
+{% endblock %}
+
+{% block body %}
+<script>
+    var x = 0;
+
+    function addInput() {
+      var dynamic_form = document.getElementById('dynamic_form');
+<!--      var input = document.createElement('input');-->
+<!--      input.type = 'text'-->
+<!--      input.id = 'desc' + ++x;-->
+<!--      input.name = 'desc' + x;-->
+<!--      input.setAttribute('class', 'form-control')-->
+<!--      input.setAttribute('required', 'True')-->
+<!--      input.placeholder = 'Характеристика ' + (x+1)-->
+      dynamic_form.insertAdjacentHTML('beforeEnd',`<label for="desc`+ ++x +`" id="desc_label` + x + `">Характеристика ` + (x+1) + `</label>\
+        <input type="text" name="desc`+ x +`" id="desc`+ x +`" class="form-control"required>`);
+      //dynamic_form.append($('<label for="desc'+ ++x + '">Характеристика ' + (x+1) + '</label>' + '<input type="text" name="desc' + x + '" id="desc'+ x + '" class="form-control"required>'));
+    }
+
+    function delInput() {
+      var input = document.getElementById('desc' + x);
+      input.remove();
+      var label = document.getElementById('desc_label' + x);
+      label.remove()
+      --x;
+    }
+
+
+
+
+</script>
+<div class="container mt-5">
+    {% for cat, msg in get_flashed_messages(True) %}
+    <div class="container flash {{ cat }}">{{msg}}</div>
+    {% endfor %}
+    <h1>Добавить категорию товаров</h1>
+    <div class="m-auto">
+        <form method="post">
+            <div class="mb-3">
+                <div id="dynamic_form">
+                    <label for="name">Название</label><input type="text" name="name" id="name" class="form-control"
+                                                             required>
+                    <label for="desc0" id="desc_label0">Характеристика 1</label><input type="text" name="desc0"
+                                                                                       id="desc0" class="form-control"
+                                                                                       required>
+                </div>
+            </div>
+            <div class="d-grid gap-2 d-md-block">
+                <button class="btn btn-outline-info" onclick="addInput()" type="button">Добавить характеристику</button>
+                <button class="btn btn-outline-warning" onclick="delInput()" type="button">Удалить характеристику
+                </button>
+                <input type="submit" class="btn btn-success" value="Отправить">
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}

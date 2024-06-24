@@ -1,0 +1,161 @@
+<div class="row gx-4 gx-lg-5 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+
+    {% for pr in products %}
+    <form method="post" action="{{ url_for('add_to_cart') }}" class="product_form"
+          id="product_form_{{ pr.id }}">
+        <div class="col mb-5" style="height: 470px;">
+            <input type="hidden" name="id" value="{{ pr.id }}">
+            <div class="card h-100 d-flex flex-column text-center ">
+                <!-- Product image-->
+                <!--                            <a href="{{ url_for('product', prod=pr.id) }}">-->
+                <img class="card-img-top" src="{{ url_for('static', filename=pr.img)}}" alt="..."/>
+                <!--                            </a>&lt;!&ndash; Product details&ndash;&gt;-->
+                <div class="card-body  flex-grow-1 d-flex flex-column">
+                    <div class="text-center">
+                        <!-- Product name-->
+                        <h5 class="fw-bolder"><a class="card-title"
+                                                 href="{{ url_for('product', prod=pr.id) }}">{{ pr.title }}</a></h5>
+                        <!-- Product reviews-->
+                    </div>
+                </div>
+                <!-- Product actions-->
+                <div class="card-end p-0 pb-2">
+                    <fieldset class="rating justify-content-center text-warning" id="rating{{ pr.id }}">
+                        {% for i in range(5, 0, -1) %}
+                        {% if pr.id in ratings.keys() and ratings[pr.id][0] != 0 %}
+                        {% if i >= ratings[pr.id] %}
+                        <input type="radio" id="star{{ i }}_{{ pr.id }}" name="rating" value="{{ i }}"
+                               checked/>
+                        {% else %}
+                        <input type="radio" id="star{{ i }}_{{ pr.id }}" name="rating" value="{{ i }}"/>
+                        {% endif %}
+                        <label class="full" for="star{{ i }}_{{ pr.id }}" title="{{ i }} stars"></label>
+                        {% else %}
+                        <input type="radio" id="star{{ i }}_{{ pr.id }}" name="rating" value="{{ i }}"/>
+                        <label class="full" for="star{{ i }}_{{ pr.id }}" title="{{ i }} stars"></label>
+                        {% endif %}
+
+                        {% endfor %}
+                        <p class="card-text">{{ ratings[pr.id] }}/5</p>
+                    </fieldset>
+                    <div class="card-footer border-top-0 bg-transparent">
+                        <h5 class="card-text">{{ pr.price }}р.</h5>
+                        <div class="text-end">
+                            {% if current_user.is_authenticated %}
+                            <button type="submit" class="btn btn-outline-dark cart_btn">В корзину
+                            </button>
+                            {% else %}
+                            <a href="{{ url_for('login') }}" class="btn btn-outline-dark">В корзину</a>
+                            {% endif %}
+                            <a href="#" class="like_btn btn" data-product-id="{{ pr.id }}">
+                                <svg id="svg_fav_{{pr.id}}" xmlns="http://www.w3.org/2000/svg"
+                                     width="16"
+                                     height="16" fill="currentColor"
+                                     class="bi bi-heart-fill" viewBox="0 0 16 16">
+                                    {% if pr in favorites %}
+                                    <path fill-rule="evenodd"
+                                          d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
+                                    {% else %}
+                                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"/>
+                                </svg>
+                                {% endif %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    {% endfor %}
+</div>
+
+<script>
+    $(document).ready(function(){
+
+        $('.product_form').submit(function(e){
+            e.preventDefault();
+            var formData = $(this).serialize();
+            var url = $(this).attr('action');
+            var this_form = $(this);
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: formData,
+                success: function(response){
+                    this_form.find('button').text("В корзине (" + response['quantity'] + ")");
+                    $('.items_cart').text(response['items_cart']);
+                },
+                error: function(response){
+                    console.log(response);
+                }
+            });
+        });
+
+        $('.like_btn').click(function(e){
+                e.preventDefault(); // Предотвратить переход по ссылке
+                {% if current_user.is_authenticated %}
+                    var product_id = $(this).data('product-id');
+                    $.ajax({
+                        type: 'POST',
+                        url: "{{ url_for('add_fav') }}",
+                        data: {product_id: product_id},
+                        success: function(response){
+                            if ($('#status_content').text() == "Избранное"){
+                                $('#content-block').load('{{url_for("profile_content", parameter="fav")}}', function(){
+                                    $('#content-block').prepend('<h4 id="status_content">Избранное</h4>');
+                                });
+                            } else {
+                                $('#content-block').load('{{url_for("profile_content", parameter="rat")}}', function(){
+                                    $('#content-block').prepend('<h4 id="status_content">Оцененные</h4>');
+                                });
+                            }
+
+                            if (response['fav']) {
+                                $('#svg_fav_' + product_id).html('<path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>');
+                            } else {
+                                $('#svg_fav_' + product_id).html('<path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"/>');
+                            }
+                        },
+                        error: function(response){
+                            console.log(response);
+                        }
+                    });
+            {% else %}
+                window.location.href = "{{ url_for('login') }}";
+            {% endif %}
+        });
+
+        // Обработчик события изменения состояния радиокнопок
+        $('input[type="radio"]').change(function(){
+
+            {% if current_user.is_authenticated %}
+
+                var rating = $(this).val(); // Получаем значение выбранной оценки
+                var productId = $(this).attr('id').split('_')[1]; // Получаем ID продукта из ID звездочки
+                // Отправляем данные через Ajax
+                $.ajax({
+                    url: "{{ url_for('send_star') }}", // Путь к обработчику на сервере
+                    type: 'POST',
+                    data: {rating: rating, productId: productId}, // Данные для отправки
+                    success: function(response){
+                        if ($('#status_content').text() == "Избранное"){
+                                $('#content-block').load('{{url_for("profile_content", parameter="fav")}}', function(){
+                                    $('#content-block').prepend('<h4 id="status_content">Избранное</h4>');
+                                });
+                            } else {
+                                $('#content-block').load('{{url_for("profile_content", parameter="rat")}}', function(){
+                                    $('#content-block').prepend('<h4 id="status_content">Оцененные</h4>');
+                                });
+                            }
+                    },
+                    error: function(xhr, status, error){
+                        console.log(error);
+                    }
+                });
+            {% else %}
+                window.location.href = "{{ url_for('login') }}";
+            {% endif %}
+        });
+    });
+
+</script>

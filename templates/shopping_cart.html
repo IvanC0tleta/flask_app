@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Корзина
+{% endblock %}
+
+{% block body %}
+<section class="h-100 h-custom" style="background-color: #d2c9ff;">
+    <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-12">
+                <div class="card card-registration card-registration-2" style="border-radius: 15px;">
+                    <div class="card-body p-0">
+                        <div class="row g-0">
+                            <div class="col-lg-8">
+                                <div class="p-5">
+                                    <div class="d-flex justify-content-between align-items-baseline mb-5">
+                                        <h1 class="fw-bold mb-0 text-black">Корзина покупок</h1>
+                                        <h4 class="mb-0  text-muted">Товаров</h4><h4 class="mb-0 text-muted items_cart">
+                                        0</h4>
+                                    </div>
+                                    {% set ns = namespace(total=0) %}
+                                    {% for row in res %}
+                                    <hr class="my-4">
+                                    <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                        <div class="col-md-2 col-lg-2 col-xl-2">
+                                            <img src="{{ url_for('static', filename=row[1].img)}}"
+                                                    class="img-fluid rounded-3" alt="...">
+                                        </div>
+                                        <div class="col-md-3 col-lg-3 col-xl-3">
+                                            <h6 class="text-muted"><a href="{{ url_for('product', prod=row[1].id) }}">{{ row[1].title }}</a></h6>
+                                        </div>
+                                        <div class="col-md-3 col-lg-3 col-xl-2 d-flex">
+<!--                                            <button data-mdb-button-init data-mdb-ripple-init class="btn btn-link px-2"-->
+<!--                                                    onclick="this.parentNode.querySelector('input[type=number]').stepDown()">-->
+<!--                                                <i class="bi bi-dash"></i>-->
+<!--                                            </button>-->
+
+                                            <input id="quantity_{{row[1].id}}" min="0" name="quantity_{{row[1].id}}"
+                                                   value="{{ row[0].quantity }}"
+                                                   type="number"
+                                                   class="form-control form-control-sm"/>
+
+<!--                                            <button data-mdb-button-init data-mdb-ripple-init class="btn btn-link px-2"-->
+<!--                                                    onclick="this.parentNode.querySelector('input[type=number]').stepUp()">-->
+<!--                                                <i class="bi bi-plus"></i>-->
+<!--                                            </button>-->
+                                        </div>
+                                        <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
+                                            <h6 class="mb-0">{{ row[0].quantity * row[1].price }}</h6>
+                                        </div>
+                                        <div class="col-md-1 col-lg-1 col-xl-1 text-end">
+                                            <a href="#" class="text-muted" id="del_{{ row[1].id }}"><i class="bi bi-trash"></i></a>
+                                        </div>
+                                    </div>
+                                    {% set ns.total = ns.total + row[0].quantity * row[1].price %}
+                                    {% endfor %}
+                                    <hr class="my-4">
+                                    <a href="{{ url_for('clear_cart') }}" class="btn bnt-outline-warning" type="button" onclick="return confirm('Вы уверены?')">Очистить
+                                        корзину</a>
+                                    <div class="pt-5">
+                                        <h6 class="mb-0"><a href="{{ url_for('index') }}" class="text-body"><i
+                                                class="fas fa-long-arrow-alt-left me-2"></i>Вернуться к покупкам</a>
+                                        </h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 bg-grey">
+                                <div class="p-5">
+                                    <h3 class="fw-bold mb-5 mt-2 pt-1">Итого</h3>
+                                    <hr class="my-4">
+
+                                    <div class="d-flex justify-content-between mb-4">
+                                        <span>Товаров</span>x<span
+                                            class="items_cart">0</span>=<span>{{ ns.total }}</span>
+                                    </div>
+                                    <hr class="my-4">
+
+                                    <div class="d-flex justify-content-between mb-5">
+                                        <h5 class="text-uppercase">Итого</h5>
+                                        <h5>{{ ns.total }}</h5>
+                                    </div>
+
+                                    <a href="#" type="button" data-mdb-button-init data-mdb-ripple-init
+                                       class="btn btn-dark btn-block btn-lg"
+                                       data-mdb-ripple-color="dark">Перейти к оплате</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    $(document).ready(function(){
+        $('[id^="quantity"]').change(function(){
+            var quantity = $(this).val(); // Получаем значение выбранной оценки
+            var product_id = $(this).attr('id').split('_')[1];
+            if (quantity > 0){
+                $.ajax({
+                    url: "{{ url_for('set_quantity') }}",
+                    type: 'POST',
+                    data: {quantity: quantity, id: product_id}, // Данные для отправки
+                    success: function(response){
+                        $('body').load('{{url_for('shopping_cart')}}');
+                    },
+                    error: function(xhr, status, error){
+                        console.log(error);
+                    }
+                });
+            } else {
+                $.ajax({
+                    url: "{{ url_for('delete_product_from_cart') }}",
+                    type: 'POST',
+                    data: {id: product_id}, // Данные для отправки
+                    success: function(response){
+                        $('body').load('{{url_for('shopping_cart')}}');
+                    },
+                    error: function(xhr, status, error){
+                        console.log(error);
+                    }
+                });
+            }
+
+        });
+        $('[id^="del"').click(function(e){
+                e.preventDefault(); // Предотвратить переход по ссылке
+                var product_id = $(this).attr('id').split('_')[1];
+                $.ajax({
+                    url: "{{ url_for('delete_product_from_cart') }}",
+                    type: 'POST',
+                    data: {id: product_id}, // Данные для отправки
+                    success: function(response){
+                        $('body').load('{{url_for('shopping_cart')}}');
+                    },
+                    error: function(xhr, status, error){
+                        console.log(error);
+                    }
+                });
+        });
+    });
+
+</script>
+
+{% endblock %}

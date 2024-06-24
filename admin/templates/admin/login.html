@@ -1,0 +1,16 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}
+Вход
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5 col-lg-4">
+    <h1>Вход</h1>
+    <form method="post">
+        <input type="text" name="user" id="user" class="form-control" placeholder="user"><br>
+        <input type="password" name="psw" id="psw" class="form-control" placeholder="password"><br>
+        <input type="submit" class="btn btn-success" value="Send"><br><br>
+    </form>
+</div>
+{% endblock %}

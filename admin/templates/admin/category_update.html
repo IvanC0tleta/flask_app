@@ -1,0 +1,53 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}
+Обновление категории
+{% endblock %}
+
+{% block body %}
+<script>
+    var x = 0
+
+    $(function(){
+       x = document.getElementById('dynamic_form').childElementCount - 1;
+       console.log(x);
+    });
+
+    function addInput() {
+      var dynamic_form = document.getElementById('dynamic_form');
+      dynamic_form.insertAdjacentHTML('beforeEnd',
+                `<div class="input-group mb-3" id="desc_div${x}">\
+                <input type="text" name="desc${x}" id="desc${x}" class="form-control" placeholder="Характеристика" required>\
+                <div class="btn btn-outline-secondary" onclick="delInput(${x})">X</div></div>`);
+      x++;
+    }
+
+    function delInput(id) {
+        var div = document.getElementById('desc_div' + id);
+        div.remove();
+    }
+
+</script>
+
+<div class="container-sm mt-5">
+    {% for cat_msg, msg in get_flashed_messages(True) %}
+    <div class="container flash {{ cat_msg }}">{{msg}}</div>
+    {% endfor %}
+    <h1>Обновление категории</h1>
+    <form method="post">
+        <div id="dynamic_form">
+            <label for="name">Название категории</label>
+            <input type="text" name="name" id="name" class="form-control mb-3" value="{{cat.name}}" required>
+            <label>Характеристики категории</label>
+            {% for key in cat.desc %}
+            <div class="input-group mb-3" id="desc_div{{ loop.index0 }}">
+                <input type="text" name="desc{{ loop.index0 }}" id="desc{{ loop.index0 }}" class="form-control" value="{{ key }}" required>
+                <div class="btn btn-outline-secondary" onclick="delInput({{ loop.index0 }})">X</div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="btn btn-info" onclick="addInput()">Добавить характеристику</div>
+        <input type="submit" class="btn btn-success" value="Отправить"><br><br>
+    </form>
+</div>
+{% endblock %}

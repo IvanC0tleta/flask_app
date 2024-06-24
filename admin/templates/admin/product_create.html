@@ -1,0 +1,46 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}
+Добавить товар
+{% endblock %}
+{% block body %}
+
+<div class="container mt-5">
+    {% for cat, msg in get_flashed_messages(True) %}
+    <div class="container flash {{ cat }}">{{msg}}</div>
+    {% endfor %}
+    <h1>Добавить товар</h1>
+    <form method="post" enctype="multipart/form-data">
+        <select name="category" id="category" class="form-control" required>
+            <option value="" selected disabled hidden>Выберите категорию товара</option>
+           {% for cat in categories %}
+            <option value="{{ cat.id }}">{{ cat.name }}</option>
+          {% endfor %}
+        </select><br>
+        <label>Название</label><input type="text" name="title" id="title" class="form-control" required>
+        <label>Характеристики</label><div id="desc" class="container"></div>
+        <input type="number" name="price" id="price" class="form-control" placeholder="Цена" required>
+        <input type="file" name="img" id="img">
+        <input type="submit" class="btn btn-success" value="Добавить">
+    </form>
+</div>
+<script>
+    document.getElementById('category').onchange = function() {
+        var cat_id = this.value;
+        $.ajax({
+            type: 'POST',
+            data: JSON.stringify({
+                'cat_id': cat_id,
+            }),
+            contentType: 'application/json; charset=utf-8',
+            url: "{{ url_for('get_category_desc') }}",
+            success: function(data) {
+                $("#desc").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $("#desc").append('<input type="text" name="' + data[i] + '" placeholder="' + data[i] + '" class="form-control" required><br>');
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

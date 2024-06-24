@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Профиль
+{% endblock %}
+
+{% block body %}
+<section style="background-color: #eee;">
+    <div class="container py-5">
+        <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+            <p class="fs-5 text-body-secondary">Профиль</p>
+        </div>
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">ФИО</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <p class="text-muted mb-0">{{ current_user.get_name() }}</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Email</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <p class="text-muted mb-0">{{ current_user.get_email() }}</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <p class="mb-0">Адрес</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <p class="text-muted mb-0">{{current_user.get_city()}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-body text-center">
+                        <h5 class="my-3">{{ current_user.get_name() }}</h5>
+                        <!--                        <p class="text-muted mb-1">Количество покупок</p>-->
+                        <div class="d-flex justify-content-center mb-2">
+                            <button type="button" data-mdb-button-init data-mdb-ripple-init
+                                    class="btn btn-outline-primary ms-1">Редактировать
+                            </button>
+                            <a type="button" class="btn btn-outline-dark ms-1" href="{{ url_for('logout') }}">Выйти</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="button-group">
+            <button class="btn btn-primary" id="btn-fav">Избранные</button>
+            <button class="btn btn-secondary" id="btn-rat">Оцененные</button>
+        </div>
+        <div>
+            {% for cat, msg in get_flashed_messages(True) %}
+            <div class="container flash {{ cat }}">{{msg}}</div>
+            {% endfor %}
+            <div class="container px-4 px-lg-5 mt-5" id="content-block">
+
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    $(document).ready(function(){
+        $('#btn-fav').click(function(){
+            $('#content-block').load('{{url_for("profile_content", parameter="fav")}}', function(){
+                $('#content-block').prepend('<h4 id="status_content">Избранное</h4>');
+            });
+
+        });
+
+        $('#btn-rat').click(function(){
+            $('#content-block').load('{{url_for("profile_content", parameter="rat")}}', function(){
+                $('#content-block').prepend('<h4 id="status_content">Оцененные</h4>');
+            });
+        });
+
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Новый пользователь
+{% endblock %}
+
+{% block body %}
+<section class="py-5">
+    <div class="pricing-header mx-auto text-center">
+        <h4 class="fs-5 text-body-secondary">Регистрация</h4>
+    </div>
+    {% for cat, msg in get_flashed_messages(True) %}
+    <div class="container flash {{ cat }}">{{msg}}</div>
+    {% endfor %}
+    <main class="form-signin m-auto" style="width: 400px;">
+        <form method="post">
+            {{ form.hidden_tag() }}
+            {% for field in form if field.name not in ['csrf_token', 'submit'] -%}
+            <div class="my-1">
+                {{ field.label() }}
+                {% if field.errors %}
+                {{ field(class='warning form-control') }}
+                <span class="warning">
+                    {% for e in field.errors %}
+                        {{ e }}
+                    {% endfor %}
+                </span>
+                {% else %}
+                {{ field(class="form-control") }}
+                {% endif %}
+            </div>
+            {% endfor %}
+            {{ form.submit(class='btn btn-primary w-100 py-2 my-2') }}
+            <a class="btn btn-outline-dark w-100 py-2" href="{{url_for('login')}}">Войти</a>
+        </form>
+    </main>
+</section>
+{% endblock %}

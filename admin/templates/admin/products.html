@@ -1,0 +1,38 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}
+Редактировать товары
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+        <h1 class="display-4 fw-normal text-body-emphasis">Shop</h1>
+        <p class="fs-5 text-body-secondary">Редактировать товары</p>
+        {% for cat_msg, msg in get_flashed_messages(True) %}
+            <div class="container flash {{ cat_msg }}">{{msg}}</div>
+        {% endfor %}
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-4 g-4">
+        {% for pr in products %}
+        <div class="col">
+            <div class="card text-center mb-3">
+                <img src="{{ url_for('static', filename=pr.img)}}" class="card-img-top img-fluid" alt="#">
+                <div class="card-body">
+                    <a class="card-title" href="{{ url_for('.product', prod_id=pr.id) }}">{{pr.title}}</a>
+                    <h4>{{ pr.price }}р.</h4>
+                    <div class="d-grid">
+                        <a href="{{ url_for('.product', prod_id=pr.id) }}" type="button" class="btn btn-outline-info">Просмотреть</a>
+                        <a href="{{ url_for('.product_update', prod_id=pr.id) }}" type="button" class="btn btn-outline-info">Редактировать</a>
+                        <a href="{{ url_for('.product_delete', prod_id=pr.id) }}" type="button" class="btn btn-outline-warning">Удалить</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

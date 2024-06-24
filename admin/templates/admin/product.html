@@ -1,0 +1,41 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}
+Товар
+{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-6">
+            <img src="{{ url_for('static', filename=product.img)}}"
+                 class="img-fluid"
+                 alt="Product Image"/>
+        </div>
+
+        <div class="col-lg-6">
+            <form method="post" action="{{ url_for('add_to_cart') }}" class="product_form"
+                  id="product_form_{{ product.id }}">
+                <input type="hidden" name="id" value="{{ product.id }}">
+                <h2 class="fw-bold">{{product.title}}</h2>
+                <p class="text-muted">
+                <h3 class="my-4">{{product.price}}p.</h3>
+                <p class="mb-4">
+                    {% for key in product.desc.keys() %}
+                <h5>{{ key }}: {{ product.desc[key] }}</h5>
+                {% endfor %}
+                </p>
+
+                <div class="d-flex gap-3 mb-4">
+                    <a href="{{ url_for('.product_update', prod_id=product.id) }}" type="button"
+                       class="btn btn-outline-info">Редактировать</a>
+                    <a href="{{ url_for('.product_delete', prod_id=product.id) }}" type="button"
+                       class="btn btn-outline-warning">Удалить</a>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

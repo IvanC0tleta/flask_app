@@ -1,0 +1,87 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}
+Обновление товара
+{% endblock %}
+{% block body %}
+
+<!--<div class="container py-5">-->
+<!--    <div class="row">-->
+<!--        <div class="col-lg-6">-->
+<!--            <img src="{{ url_for('static', filename=product.img)}}"-->
+<!--                 class="img-fluid"-->
+<!--                 alt="Product Image"/>-->
+<!--        </div>-->
+
+<!--        <div class="col-lg-6">-->
+<!--            <form method="post" action="{{ url_for('add_to_cart') }}" class="product_form"-->
+<!--                  id="product_form_{{ product.id }}">-->
+<!--                <input type="hidden" name="id" value="{{ product.id }}">-->
+<!--                <h2 class="fw-bold">{{product.title}}</h2>-->
+<!--                <p class="text-muted">-->
+<!--                <h3 class="my-4">{{product.price}}p.</h3>-->
+<!--                <p class="mb-4">-->
+<!--                    {% for key in desc.keys() %}-->
+<!--                <h5>{{ key }}: {{ desc[key] }}</h5>-->
+<!--                {% endfor %}-->
+<!--                </p>-->
+
+<!--                <div class="d-flex gap-3 mb-4">-->
+<!--                    <a href="{{ url_for('.product_update', prod_id=product.id) }}" type="button"-->
+<!--                       class="btn btn-outline-info">Редактировать</a>-->
+<!--                    <a href="{{ url_for('.product_delete', prod_id=product.id) }}" type="button"-->
+<!--                       class="btn btn-outline-warning">Удалить</a>-->
+<!--                </div>-->
+<!--            </form>-->
+<!--        </div>-->
+
+<!--    </div>-->
+<!--</div-->
+<div class="container mt-5">
+    {% for cat_msg, msg in get_flashed_messages(True) %}
+    <div class="container flash {{ cat_msg }}">{{msg}}</div>
+    {% endfor %}
+    <h1>Обновить товар</h1>
+    <img src="{{ url_for('static', filename=product.img)}}" class="img" style="width: 500px;" alt="#">
+    <form method="post" enctype="multipart/form-data">
+        <select name="category" id="category" class="form-control" >
+            {% for cat in categories %}
+                {% if (cat.id == product.cat_id) %}
+                    <option value="{{ cat.id }}" selected>{{ cat.name }}</option>
+                {% else %}
+                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                {% endif %}
+            {% endfor %}
+        </select><br>
+        <input type="text" name="title" id="title" class="form-control" value="{{ product.title }}" required><br>
+        <div id="desc" class="container"><p>
+        {% for key in desc.keys() %}
+            <label for="{{ key }}">{{ key }}</label><input type="text" id="{{ key }}" name="{{ key }}" class="form-control" value="{{ desc[key] }}" required>
+        {% endfor %}
+        </div><br>
+        <input type="number" name="price" id="price" class="form-control" value="{{ product.price }}" required><br>
+        <input type="file" name="img" id="img" accept=".jpg,.jpeg,.png">
+        <input type="submit" class="btn btn-success" value="Обновить"><br><br>
+        <a href="{{ url_for('.products') }}" type="submit" class="btn btn-success">Отменить</a><br>
+    </form>
+</div>
+<script>
+    document.getElementById('category').onchange = function() {
+        var cat_id = this.value;
+        $.ajax({
+            type: 'POST',
+            data: JSON.stringify({
+                'cat_id': cat_id,
+            }),
+            contentType: 'application/json; charset=utf-8',
+            url: "{{ url_for('get_category_desc') }}",
+            success: function(data) {
+                $("#desc").empty();
+                for (var i = 0; i < data.length; i++) {
+                    $("#desc").append('<label for="' + data[i] + '">' + data[i] + '</label><input type="text" name="' + data[i] + '" class="form-control"><br>');
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

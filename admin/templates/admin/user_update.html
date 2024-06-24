@@ -1,0 +1,58 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}
+Обновление пользователя
+{% endblock %}
+{% block body %}
+
+<div class="container mt-5">
+    {% for cat_msg, msg in get_flashed_messages(True) %}
+    <div class="container flash {{ cat_msg }}">{{msg}}</div>
+    {% endfor %}
+    <h1>Обновить данные пользователя</h1>
+    {% for cat, msg in get_flashed_messages(True) %}
+    <div class="container flash {{ cat }}">{{msg}}</div>
+    {% endfor %}
+    <main class="form-signin m-auto" style="width: 400px;">
+        <form method="post">
+            {{ form.hidden_tag() }}
+            {% for field in form if field.name not in ['csrf_token', 'submit'] -%}
+            <div class="my-1">
+                {{ field.label() }}
+                {% if field.errors %}
+                {{ field(class='warning form-control') }}
+                <span class="warning">
+                    {% for e in field.errors %}
+                        {{ e }}
+                    {% endfor %}
+                </span>
+                {% else %}
+                {{ field(class="form-control") }}
+                {% endif %}
+            </div>
+            {% endfor %}
+            {{ form.submit(class='btn btn-primary w-100 py-2 my-2') }}
+            <a class="btn btn-outline-dark w-100 py-2" href="{{url_for('login')}}">Войти</a>
+        </form>
+    </main>
+    <form method="post">
+        <div class="col">
+            <div class="text-center mb-3">
+                <div class="container">
+                    <label>Имя:</label><input type="text" name="name" id="name" class="" value="{{ user.name }}"><br>
+                    <label>Email:</label><input type="email" name="email" id="email" class=""
+                                                value="{{ user.email }}"><br>
+                    <label>Город:</label><input type="text" name="city" id="city" class="" value="{{ user.city }}"><br>
+                    <label>Дата рождения:</label><input type="date" name="birth" id="birth" class=""
+                                                        value="{{ user.birth }}"><br>
+                    <label for="psw">Новый пароль</label><input type="password" id="psw" name="psw" class=""><br>
+                    <div class="">
+                        <button class="btn btn-outline-info">Обновить</button>
+                        <a href="{{ url_for('.users') }}" type="submit" class="btn btn-success">Отменить</a><br>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

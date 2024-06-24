@@ -1,0 +1,26 @@
+.counter
+{
+  display: inline-block;
+  width: 50px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  border: 1px dashed grey;
+  margin: 10px 0;
+}
+
+.counter:hover
+{
+  cursor: pointer;
+  background-color: #360581;
+}
+
+.flash {padding: 10px;}
+.flash.success {
+    border: 1px solid #21DB56;
+    background: #AEFFC5;
+}
+.flash.error {
+    border: 1px solid #FF4343;
+    background: #FF9C9C;
+}
